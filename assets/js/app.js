@@ -1,7 +1,12 @@
+var url = window.location.href;
+var swLocation = '/name/sw.js';
+if (navigator.serviceWorker) {
 
+    if (url.includes('localhost')) {
 
-if ( navigator.serviceWorker ) {
-    console.log('Podemos Usarlo');
-    //navigator.serviceWorker.register('/sw.js');
+        swLocation = '/sw.js';
+
+    }
+
+    navigator.serviceWorker.register(swLocation);
 }
-
