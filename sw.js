@@ -66,3 +66,21 @@ self.addEventListener('activate', e => {
     e.waitUntil(respuesta);
 
 });
+
+self.addEventListener('fetch', e => {
+    const respuesta = caches.match(e.request).then(res => {
+        if (res) {
+
+            return res;
+
+        } else {
+            return fetch(e.request).then(newResp => {
+
+                return actualizarCacheDinamico(DYNAMIC_CACHE, e.request, newResp);
+
+            });
+        }
+
+    });
+    e.respondWith(respuesta);
+});
