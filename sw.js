@@ -1,183 +1,66 @@
-// const CACHE_NAME = 'cache_1';
 
-const CACHE_STATIC_NAME = 'static_v1';
-const CACHE_DYNAMIC_NAME = 'dynamic_v1';
-const CACHE_INMUTABLE_NAME = 'inmutable_v1';
+const STATIC_CACHE = 'static-v1';
+const INMUTABLE_CACHE = 'inmutable-v1';
 
-const CACHE_DYNAMIC_LIMIT = 20;
 
-function limpiarCache(cacheName, numeroItems) {
 
-    caches.open(cacheName)
-        .then(cache => {
+const APP_SHELL = [
+    'index.html',
+    'assets/css/bootstrap/bootstrap.css',
+    'assets/fonts/ionicons/css/ionicons.css',
+    'assets/fonts/law-icons/font/flaticon.css',
+    'assets/css/slick.css',
+    'assets/css/helpers.css',
+    'assets/css/style.css',
+    'assets/css/redes-sociales.css',
+    'assets/js/jquery.min.js',
+    'assets/js/popper.min.js',
+    'assets/js/bootstrap.min.js',
+    'assets/js/slick.min.js',
+    'assets/js/jquery.waypoints.min.js',
+    'assets/js/jquery.easing.1.3.js',
+    'assets/js/main.js',
+    'assets/js/app.js'
+];
 
-            return cache.keys()
-                .then(keys => {
-                    if (keys.length > numeroItems) {
-
-                        cache.delete(keys[0])
-                            .then(limpiarCache(cacheName, numeroItems))
-
-                    }
-                });
-
-        });
-
-}
+const APP_SHELL_INMUTABLE = [
+    'https://fonts.googleapis.com/css?family=Crimson+Text:400,400i,600|Montserrat:200,300,400',
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css'
+];
 
 
 self.addEventListener('install', e => {
-    const cacheProm = caches.open(CACHE_STATIC_NAME)
-        .then(cache => {
-            return cache.addAll([
-                '/index.html',
-                'assets/css/bootstrap/bootstrap.css',
-                'assets/fonts/ionicons/css/ionicons.css',
-                'assets/fonts/law-icons/font/flaticon.css',
-                'assets/css/slick.css',
-                'assets/css/helpers.css',
-                'assets/css/style.css',
-                'assets/css/redes-sociales.css',
-                'assets/js/jquery.min.js',
-                'assets/js/popper.min.js',
-                'assets/js/bootstrap.min.js',
-                'assets/js/slick.min.js',
-                'assets/js/jquery.waypoints.min.js',
-                'assets/js/jquery.easing.1.3.js',
-                'assets/js/main.js',
-                'assets/js/app.js'
-            ]);
-        });
 
-    const cacheInmutable = caches.open(CACHE_INMUTABLE_NAME)
-        .then(cache => {
-            return cache.addAll([
-                'https://fonts.googleapis.com/css?family=Crimson+Text:400,400i,600|Montserrat:200,300,400',
-                'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css'
-            ]);
-        });
+    const cacheStatic = caches.open(STATIC_CACHE).then(cache => {
+        cache.addAll(APP_SHELL)
+    });
 
+    const cacheInmutable = caches.open(INMUTABLE_CACHE).then(cache => {
+        cache.addAll(APP_SHELL_INMUTABLE)
+    });
 
-
-    e.waitUntil(Promise.all([
-        cacheProm,
-        cacheInmutable
-    ]));
-
-
+    e.waitUntil(Promise.all([cacheStatic, cacheInmutable]));
 
 });
-self.addEventListener('fetch', e => {
 
-    // 5-Cache & Network Race
+self.addEventListener('activate', e => {
 
-    const respuesta_5 = new Promise((resolve, reject) => {
+    const respuesta = caches.keys().then(keys => {
 
-        let rechazada = false;
+        keys.forEach(key => {
 
-        const falloUnaVez = () => {
-            if (rechazada) {
-
-                if (/\.(png|jpg)$/i.test(e.request.url)) {
-
-                    resolve(caches.match('/img/no-img.jpg'));
-
-                } else {
-                    reject('No se encontro respuesta');
-                }
-
-            } else {
-                rechazada = true;
+            if (key !== STATIC_CACHE && key.includes('static')) {
+                return caches.delete(key);
             }
-        };
 
-        fetch(e.request).then(res => {
-            if (res.ok) {
-                resolve(res);
-            } else {
-                falloUnaVez();
+            if (key !== INMUTABLE_CACHE && key.includes('inmutable')) {
+                return caches.delete(key);
             }
-        }).catch(falloUnaVez)
 
-        caches.match(e.request).then(res => {
-            if (res) {
-                resolve(res);
-            } else {
-                falloUnaVez();
-            }
-        }).catch(falloUnaVez)
+        });
 
     });
 
-    e.respondWith(respuesta_5);
+    e.waitUntil(respuesta);
 
-    // 4-Cache with Network update
-    // Rendimiento es crítico
-    // Siempre estarán un paso atrás
-
-    // if (e.request.url.includes('bootstrap')) {
-
-    //     return e.respondWith(caches.match(e.request));
-
-    // }
-
-    // const respuesta = caches.open(CACHE_STATIC_NAME).then(cache => {
-    //     fetch(e.request).then(newRes => {
-    //         cache.put(e.request, newRes)
-    //     });
-
-    //     return cache.match(e.request);
-
-    // });
-
-    // e.respondWith(respuesta);
-
-
-    // 3-Network with cache fallback
-
-    // const respuestaNetwork = fetch(e.request).then(res => {
-
-    //     if (!res) return caches.match(e.request);
-
-    //     // console.log('Fetch', res);
-
-    //     caches.open(CACHE_DYNAMIC_NAME)
-    //         .then(cache => {
-    //             cache.put(e.request, res);
-    //             limpiarCache(CACHE_DYNAMIC_NAME, CACHE_DYNAMIC_LIMIT);
-    //         })
-
-    //     return res.clone();
-
-    // }).catch(err => {
-    //     return caches.match(e.request);
-    // });
-
-
-    // e.respondWith(respuestaNetwork);
-
-
-    // 2 - Cache with Network Fallback
-    // const respuesta = caches.match(e.request)
-    //     .then(res => {
-    //         if (res) return res;
-    //         // No esxiste el archivo
-    //         // tengo que ir a la web
-    //         console.log('No existe', e.request.url);
-    //         return fetch(e.request).then(newResp => {
-
-    //             caches.open(CACHE_DYNAMIC_NAME)
-    //                 .then(cache => {
-    //                     cache.put(e.request, newResp);
-    //                     limpiarCache(CACHE_DYNAMIC_NAME, CACHE_DYNAMIC_LIMIT);
-    //                 });
-
-    //             return newResp.clone();
-    //         });
-    //     });
-    // e.respondWith(respuesta);
-    // 1-Cache Only
-    // e.respondWith(caches.match(e.request));
-    // 1-Cache Only
-    // e.respondWith(caches.match(e.request));
 });
