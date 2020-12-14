@@ -1,0 +1,9 @@
+{
+    "short_name": "Name",
+    "name": "Test Name",
+    "start_url": "index.html",
+    "background_color": "#fff",
+    "display": "standalone",
+    "theme_color": "#1d82ff",
+
+}
