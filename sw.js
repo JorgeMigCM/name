@@ -7,7 +7,7 @@ const INMUTABLE_CACHE = 'inmutable-v1';
 
 
 const APP_SHELL = [
-    'index.html',
+    'index.php',
     'assets/css/bootstrap/bootstrap.css',
     'assets/fonts/ionicons/css/ionicons.css',
     'assets/fonts/law-icons/font/flaticon.css',

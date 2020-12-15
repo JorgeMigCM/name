@@ -485,28 +485,31 @@
         
         <div class="row">
           <div class="col-md-8 pr-md-5 pr-sm-0 mb-4">
-            <form action="#">
+            <form action="assest/php/contacto.php" method="POST">
               <div class="row">
                 <div class="col-md">
                   <div class="form-group">
                     <label for="name">Nombre</label>
-                    <input type="text" class="form-control p-3 rounded-0" id="name">
+                    <input type="text" class="form-control p-3 rounded-0" id="name" name="name" required>
                   </div>
                 </div>
                 <div class="col-md">
                   <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="text" class="form-control p-3 rounded-0" id="email">
+                    <input type="text" class="form-control p-3 rounded-0" id="email" name="email" required>
                   </div>
                 </div>
               </div>
-              
               <div class="form-group">
-                <label for="message">Mensaje</label>
-                <textarea cols="30" rows="10" class="form-control p-3 rounded-0" id="message"></textarea>
+                <label for="message">Asunto</label>
+                <input cols="30" rows="10" class="form-control p-3 rounded-0" id="subject" name="subject" required>
               </div>
               <div class="form-group">
-                <input type="submit" class="btn pb_outline-dark pb_font-13 pb_letter-spacing-2 p-3 rounded-0" value="Enviar Mensaje">
+                <label for="message">Mensaje</label>
+                <textarea cols="30" rows="10" class="form-control p-3 rounded-0" id="message" name="message" required></textarea>
+              </div>
+              <div class="form-group">
+                <button type="submit" class="btn pb_outline-dark pb_font-13 pb_letter-spacing-2 p-3 rounded-0">Enviar Mensaje</button>
               </div>
             </form>
           </div>
@@ -568,6 +571,18 @@
     <div id="pb_loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#fff"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#1d82ff"/></svg></div>
 
 
+    <?php if (isset($_SESSION['message'])): ?>
+    <div class="alert alert-<?php echo $_SESSION['message_type'];?> alert-dismissible fade show" role="alert">
+      <p><?php echo $_SESSION['message'];?></p>
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <?php
+    unset($_SESSION['message']); 
+    endif; 
+    ?>
+
     <script src="assets/js/jquery.min.js"></script>
     
     <script src="assets/js/popper.min.js"></script>
@@ -591,5 +606,10 @@
       gtag('config', 'G-V0PEYLRKVK');
     </script>
 
+
+
+
 	</body>
 </html>
+
+
